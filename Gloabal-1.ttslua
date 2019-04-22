@@ -1,0 +1,568 @@
+--[[ Lua code. See documentation: http://berserk-games.com/knowledgebase/scripting/ --]]
+
+--[[ The OnLoad function. This is called after everything in the game save finishes loading.
+Most of your script code goes here. --]]
+function onload()
+
+
+    playerScores = {0, 0 ,0 ,0 ,0 ,0}
+
+
+
+    suit1_guid = 'f4f00f'
+    suit2_guid = '1bed55'
+    suit3_guid = 'bf5ff2'
+    suit4_guid = 'dfda6c'
+    suit5_guid = '767d31'
+    suit6_guid = '40a221'
+    suit7_guid = 'c14626'
+    suit8_guid = 'e113f3'
+    wild_guid = 'a828b8'
+    deckZone_guid = '0b99af'
+    deleteZone_guid = '640d9e'
+    leftButton_guid = '2abd3c'
+    rightButton_guid = '0a7d9d'
+    leftZone_guid = '0b99af'
+    rightZone_guid = 'c696d5'
+    tieBreakerOngoing = false
+    wPointBag_guid  = '912e48'
+    bPointBag_guid  = 'e3a9d1'
+    yPointBag_guid  = '5612fb'
+    oPointBag_guid  = 'df97d9'
+    pPointBag_guid  = '1a7bff'
+    gPointBag_guid  = 'c2280b'
+
+
+    rightZone = getObjectFromGUID(rightZone_guid)
+    leftZone = getObjectFromGUID(leftZone_guid)
+    suit1 = getObjectFromGUID(suit1_guid)
+    suit2 = getObjectFromGUID(suit2_guid)
+    suit3 = getObjectFromGUID(suit3_guid)
+    suit4 = getObjectFromGUID(suit4_guid)
+    suit5 = getObjectFromGUID(suit5_guid)
+    suit6 = getObjectFromGUID(suit6_guid)
+    suit7 = getObjectFromGUID(suit7_guid)
+    suit8 = getObjectFromGUID(suit8_guid)
+    wild = getObjectFromGUID(wild_guid)
+    deckZone = getObjectFromGUID(deckZone_guid)
+    deleteZone = getObjectFromGUID(deleteZone_guid)
+    leftButton = getObjectFromGUID(leftButton_guid)
+    rightButton = getObjectFromGUID(rightButton_guid)
+    wPointBag = getObjectFromGUID(wPointBag_guid)
+    bPointBag = getObjectFromGUID(bPointBag_guid)
+    yPointBag = getObjectFromGUID(yPointBag_guid)
+    oPointBag = getObjectFromGUID(oPointBag_guid)
+    pPointBag = getObjectFromGUID(pPointBag_guid)
+    gPointBag = getObjectFromGUID(gPointBag_guid)
+
+
+safeToClick = true
+
+Decks = {suit1, suit2, suit3, suit4, suit5, suit6, suit7, suit8}
+pointBags = {wPointBag, bPointBag, yPointBag, oPointBag, pPointBag, gPointBag}
+playerPeople = {'White', 'Blue', 'Yellow', 'Orange', 'Purple', 'Green'}
+
+
+end
+
+
+
+function dealCards()
+
+
+deck_param = {}
+deck_param.position = {4.19, 1.03, -0.06}
+deck_param.rotation = {0.00, 269.97, 180.00}
+deck_param.index = 0
+deleteCards()
+
+for i = 1, 8, 1
+do
+  Decks[i].shuffle()
+  currentSuit = Decks[i]
+for i = 1, 9, 1
+do
+currentSuit.takeObject(deck_param)
+end
+end
+
+for i=1, 7, 1
+do
+wild.takeObject(deck_param)
+end
+
+Wait.time(function() getPlayDeck() end, 2)
+
+end
+
+function resetCards()
+
+for i = 1, 8 , 1
+do
+Decks[i].reset()
+end
+
+wild.reset()
+
+end
+
+
+function deleteCards()
+
+
+for i = 1, 6, 1 do
+
+  y = pointBags[i]
+  a = y.getObjects()
+noCards = #a
+if noCards > 0 then
+
+  if(noCards > 0) then
+
+    for z=1, noCards, 1 do
+      thisCard = y.takeObject(deck_param)
+      thisCard.destruct()
+
+    end
+  end
+end
+
+
+
+end
+
+deleteObjects = deleteZone.getObjects()
+for k, obj in pairs(deleteObjects) do
+if(obj == leftButton or obj == rightButton or obj == pointBags[1] or obj == pointBags[2] or obj == pointBags[3] or obj == pointBags[4] or obj == pointBags[5] or obj == pointBags[6]) then
+
+else
+obj.destruct()
+end
+end
+
+
+end
+
+function getPlayDeck()
+
+playDeck = deckZone.getObjects()
+playDeck_guid = playDeck[1].guid
+playTime = getObjectFromGUID(playDeck_guid)
+playTime.shuffle()
+Wait.time(function() delayCut() end, 0.2)
+
+end
+
+function delayCut()
+
+  playTime.cut()
+  newDeck  = deckZone.getObjects()
+  Wait.time(function() positionDeck() end, 0.5)
+end
+
+function positionDeck()
+
+newDeck[1].setPositionSmooth({16.69, 1.03, -0.20})
+newDeck[1].setRotation({0.00, 179.99, 180.00})
+
+end
+
+function tieBreak()
+
+if(tieBreakerOngoing == false) then
+
+tieBreakerOngoing = true
+tieBreak_param = {}
+tieBreak_param.position = {33.95, 1.03, -0.40}
+tieBreak_param.rotation = {0.00, 180.06, 0.00}
+tieBreak_param.index = 1
+
+suitChoice = math.random(8)
+
+timer('3')
+
+Wait.time(function() timer('2') end, 1, 1)
+Wait.time(function() timer('1') end, 2, 1)
+Wait.time(function() timer('go') end, 3, 1)
+
+
+end
+end
+
+function timer(a)
+
+UI.setValue('tieBreaker',  a)
+if(a == 'go') then
+Decks[suitChoice].takeObject(tieBreak_param)
+Wait.time(function() clearTimer() end, 1, 1)
+tieBreakerOngoing = false
+end
+end
+
+function clearTimer()
+UI.setValue('tieBreaker',  '')
+end
+
+function leftDeal(obj, color, alt_click)
+
+if(safeToClick) then
+
+  safeToClick = false
+  Wait.time(function() doubleClick() end, 1)
+
+  leftDeck = leftZone.getObjects()
+
+
+  if(leftDeck[1] != nil) then
+
+  if(leftDeck[1].use_hands == true) then
+
+    lastCard = true
+      if leftDeck[1].getName() == 'Wild Card' then
+
+        wildCard(leftDeck[1])
+        return 0
+      end
+
+      else
+
+        lastCard = false
+
+      end
+
+
+  leftDeck = leftDeck[1]
+
+  takeCard_param = {}
+  takeCard_param.index = 1
+
+
+
+
+
+  if (color == "Yellow")then
+
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({1.92, 1.5, 9.46},false,false)
+      leftDeck.setRotationSmooth({0.00, 165.01, 0.00},false,false)
+
+    else
+
+
+      takeCard_param.position = {1.92, 1.5, 9.46}
+      takeCard_param.rotation = {0.00, 165.01, 0.00}
+      dealCard(leftDeck)
+
+
+    end
+
+
+
+  elseif (color == "Orange")then
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({10.42, 1.5, 10.52},false,false)
+      leftDeck.setRotationSmooth({0.00, 180.00, 0.00},false,false)
+
+    else
+    takeCard_param.position = {10.42, 1.5, 10.52}
+    takeCard_param.rotation = {0.00, 180.00, 0.00}
+    dealCard(leftDeck)
+    end
+
+  elseif (color == "Green")then
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({18.96, 1.5, 9.31},false,false)
+      leftDeck.setRotationSmooth({0.00, 195.00, 0.00},false,false)
+
+    else
+    takeCard_param.position = {18.96, 1.5, 9.31}
+    takeCard_param.rotation = {0.00, 195.00, 0.00}
+    dealCard(leftDeck)
+    end
+
+  elseif (color == "Blue")then
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({18.99, 1.5, -9.75},false,false)
+      leftDeck.setRotationSmooth({0.00, 165.01, 0.00},false,false)
+
+    else
+    takeCard_param.position = {18.99, 1.5, -9.75}
+    takeCard_param.rotation = {0.00, 165.01, 0.00}
+    dealCard(leftDeck)
+    end
+
+  elseif (color == "Purple")then
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({10.50, 1.5, -10.79},false,false)
+      leftDeck.setRotationSmooth({0.00, 180.00, 0.00},false,false)
+
+    else
+    takeCard_param.position = {10.50, 1.5, -10.79}
+    takeCard_param.rotation = {0.00, 180.00, 0.00}
+    dealCard(leftDeck)
+    end
+
+  elseif (color == "White")then
+
+    if(lastCard) then
+
+      leftDeck.setPositionSmooth({1.87, 1.5, -9.66},false,false)
+      leftDeck.setRotationSmooth({0.00, 195.00, 0.00},false,false)
+
+    else
+    takeCard_param.position = {1.87, 1.5, -9.66}
+    takeCard_param.rotation = {0.00, 195.00, 0.00}
+    dealCard(leftDeck)
+    end
+  end
+  else
+  print('Deck empty, Press Start Game to play')
+  end
+end
+end
+
+function rightDeal(obj, color, alt_click)
+
+if(safeToClick) then
+
+safeToClick = false
+Wait.time(function() doubleClick() end, 1)
+
+rightDeck = rightZone.getObjects()
+
+
+if(rightDeck[1] != nil) then
+
+if(rightDeck[1].use_hands == true) then
+
+  lastCard = true
+  if rightDeck[1].getName() == 'Wild Card' then
+
+    wildCard(rightDeck[1])
+    return 0
+
+  end
+
+else
+
+  lastCard = false
+
+end
+
+
+rightDeck = rightDeck[1]
+
+takeCard_param = {}
+takeCard_param.index = 1
+
+
+
+if (color == "Yellow")then
+
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({1.92, 1.5, 9.46},false,false)
+    rightDeck.setRotationSmooth({0.00, 165.01, 0.00},false,false)
+
+  else
+    takeCard_param.position = {1.92, 1.5, 9.46}
+    takeCard_param.rotation = {0.00, 165.01, 0.00}
+    dealCard(rightDeck)
+  end
+
+elseif (color == "Orange")then
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({10.42, 1.5, 10.52},false,false)
+    rightDeck.setRotationSmooth({0.00, 180.00, 0.00},false,false)
+
+  else
+  takeCard_param.position = {10.42, 1.5, 10.52}
+  takeCard_param.rotation = {0.00, 180.00, 0.00}
+  dealCard(rightDeck)
+  end
+
+elseif (color == "Green")then
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({18.96, 1.5, 9.31},false,false)
+    rightDeck.setRotationSmooth({0.00, 195.00, 0.00},false,false)
+
+  else
+  takeCard_param.position = {18.96, 1.5, 9.31}
+  takeCard_param.rotation = {0.00, 195.00, 0.00}
+  dealCard(rightDeck)
+  end
+
+elseif (color == "Blue")then
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({18.99, 1.5, -9.75},false,false)
+    rightDeck.setRotationSmooth({0.00, 165.01, 0.00},false,false)
+
+  else
+  takeCard_param.position = {18.99, 1.5, -9.75}
+  takeCard_param.rotation = {0.00, 165.01, 0.00}
+  dealCard(rightDeck)
+  end
+
+elseif (color == "Purple")then
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({10.50, 1.5, -10.79},false,false)
+    rightDeck.setRotationSmooth({0.00, 180.00, 0.00},false,false)
+
+  else
+  takeCard_param.position = {10.50, 1.5, -10.79}
+  takeCard_param.rotation = {0.00, 180.00, 0.00}
+  dealCard(rightDeck)
+  end
+
+elseif (color == "White")then
+
+  if(lastCard) then
+
+    rightDeck.setPositionSmooth({1.87, 1.5, -9.66},false,false)
+    rightDeck.setRotationSmooth({0.00, 195.00, 0.00},false,false)
+
+  else
+  takeCard_param.position = {1.87, 1.5, -9.66}
+  takeCard_param.rotation = {0.00, 195.00, 0.00}
+  dealCard(rightDeck)
+  end
+end
+else
+print('Deck empty, Press Start Game to play')
+end
+end
+end
+
+function wildCard(obj)
+
+
+  obj.setPositionSmooth({10.43, 1.5, -0.18}, false, true)
+  obj.setRotationSmooth({10.43, 1.03, -0.18}, false, true)
+  UI.setValue('wildCard',  'WILD CARD')
+
+  Wait.time(function() UI.setAttribute('wildCard', 'color', 'Red') end, 1)
+  Wait.time(function() UI.setAttribute('wildCard', 'color', 'Yellow') end, 2)
+  Wait.time(function() UI.setValue('wildCard', ' ') end, 3)
+
+
+
+end
+
+function dealCard(obj)
+
+currentCard = obj.takeObject(takeCard_param)
+if (currentCard.getName() == 'Wild Card') then
+   wildCard(currentCard)
+ end
+
+end
+
+function doubleClick()
+
+safeToClick = true
+
+end
+
+function updateScoreboard()
+
+  wScore = playerScores[1]
+  bScore = playerScores[2]
+  yScore = playerScores[3]
+  oScore = playerScores[4]
+  pScore = playerScores[5]
+  gScore = playerScores[6]
+
+  scores = {wScore, bScore, yScore, oScore, pScore, gScore}
+  scoreBoardNames = {}
+  scoreBoardPoints = {}
+for i = 1, 6 , 1 do
+  maxScore = math.max(scores[1], scores[2], scores[3], scores[4], scores[5], scores[6])
+
+
+  for k = 1, 6, 1 do
+
+    if(maxScore == playerScores[k]) then
+    table.insert(scoreBoardNames, playerPeople[k])
+    table.insert(scoreBoardPoints, scores[k])
+
+      scores[k] = -1
+
+    end
+  end
+end
+
+  UI.setValue("scoreBoard1", scoreBoardNames[1] .. ' ' .. scoreBoardPoints[1])
+  UI.setValue("scoreBoard2", scoreBoardNames[2] .. ' ' .. scoreBoardPoints[2])
+  UI.setValue("scoreBoard3", scoreBoardNames[3] .. ' ' .. scoreBoardPoints[3])
+  UI.setValue("scoreBoard4", scoreBoardNames[4] .. ' ' .. scoreBoardPoints[4])
+  UI.setValue("scoreBoard5", scoreBoardNames[5] .. ' ' .. scoreBoardPoints[5])
+  UI.setValue("scoreBoard6", scoreBoardNames[6] .. ' ' .. scoreBoardPoints[6])
+  UI.setAttribute('scoreBoard6', 'color', scoreBoardNames[6])
+  UI.setAttribute('scoreBoard1', 'color', scoreBoardNames[1])
+  UI.setAttribute('scoreBoard2', 'color', scoreBoardNames[2])
+  UI.setAttribute('scoreBoard3', 'color', scoreBoardNames[3])
+  UI.setAttribute('scoreBoard4', 'color', scoreBoardNames[4])
+  UI.setAttribute('scoreBoard5', 'color', scoreBoardNames[5])
+
+  if(scoreBoardPoints[1] == 0) then
+  UI.setValue("scoreBoard1",  '')
+end
+
+if(scoreBoardPoints[2] == 0) then
+UI.setValue("scoreBoard2",  '')
+end
+
+if(scoreBoardPoints[3] == 0) then
+UI.setValue("scoreBoard3",  '')
+end
+
+if(scoreBoardPoints[4] == 0) then
+UI.setValue("scoreBoard4",  '')
+end
+
+if(scoreBoardPoints[5] == 0) then
+UI.setValue("scoreBoard5",  '')
+end
+
+if(scoreBoardPoints[6] == 0) then
+UI.setValue("scoreBoard6",  '')
+
+end
+
+
+
+end
+function update ()
+
+  for i = 1, 6, 1
+  do
+    c = 0
+    currentPointBag = pointBags[i].getObjects()
+    for k, obj in ipairs(currentPointBag) do
+      c = c+1
+    end
+    if playerScores[i] != c then
+      playerScores[i] = c
+      updateScoreboard()
+    end
+  end
+end
