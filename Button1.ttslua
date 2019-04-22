@@ -1,0 +1,8 @@
+function onload()
+
+rightButton_param = {}
+rightButton_param.click_function = "rightDeal"
+rightButton_param.scale = {x=3.8, y=3.8, z=3.8}
+self.createButton(rightButton_param)
+
+end
