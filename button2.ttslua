@@ -1,0 +1,8 @@
+function onload()
+  
+leftButton_param = {}
+leftButton_param.click_function = "leftDeal"
+leftButton_param.scale = {x=3.8, y=3.8, z=3.8}
+self.createButton(leftButton_param)
+
+end
