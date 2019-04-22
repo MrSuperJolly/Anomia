@@ -1,0 +1,12 @@
+<!-- Xml UI. See documentation: https://api.tabletopsimulator.com/ui/introUI/ -->
+
+<button height = "4%" width = "5%" onClick = "dealCards" offsetXY="600 450" visibility = "Admin|Host" >Start Game</button>
+<button height = "4%" width = "5%" onClick = "tieBreak" offsetXY="600 400" visibility = "Admin|Host">Tie Breaker</button>
+<text id = "tieBreaker" height = "100%" width = "100%" color = "white" offsetXY = "0 250" fontsize = "100" fontstyle = "bold"></text>
+<text id = "wildCard" height = "100%" width = "100%" color = "white" offsetXY = "0 350" fontsize = "80" fontstyle = "bold"></text>
+<text id = "scoreBoard1" height = "100%" width = "100%" color = "white" offsetXY = "800 -100" fontsize = "40" fontstyle ="bold" ></text>
+<text id = "scoreBoard2" height = "100%" width = "100%" color = "blue" offsetXY = "800 -150" fontsize = "40" fontstyle ="bold"></text>
+<text id = "scoreBoard3" height = "100%" width = "100%" color = "blue" offsetXY = "800 -200" fontsize = "40" fontstyle ="bold"></text>
+<text id = "scoreBoard4" height = "100%" width = "100%" color = "blue" offsetXY = "800 -250" fontsize = "40" fontstyle ="bold"></text>
+<text id = "scoreBoard5" height = "100%" width = "100%" color = "blue" offsetXY = "800 -300" fontsize = "40" fontstyle ="bold"></text>
+<text id = "scoreBoard6" height = "100%" width = "100%" color = "blue" offsetXY = "800 -350" fontsize = "40" fontstyle ="bold"></text>
